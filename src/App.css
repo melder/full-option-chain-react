@@ -1,0 +1,6 @@
+header {
+    border: 2px solid hsla(0, 0%, 30%, 0.20);
+    border-radius: 12px;
+    padding: 12px;
+    margin: 0 36px;
+}

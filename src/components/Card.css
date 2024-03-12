@@ -1,0 +1,39 @@
+.card-root {
+    display: inline-block;
+    vertical-align: top;
+    width: 500px;
+    border: 1px solid black;
+    margin: 10px;
+}
+
+.card-header {
+    width: 100%;
+    padding: 10px;
+}
+
+.card-header-date {
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+}
+
+
+.card-header-price {
+    float: right;
+    margin-right: 20px;
+}
+
+.card-body {
+    padding: 10px;
+}
+
+.card-body-header-member {
+    width: 20%;
+    display: inline-block;
+}
+
+.card-body-row {
+    display: inline-block;
+    width: 20%;
+}
+
