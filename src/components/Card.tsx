@@ -3,117 +3,139 @@ import { useState, useEffect } from "react";
 import moment from "moment-timezone";
 
 interface Props {
-	ticker: string;
-	timestamp: number;
+    ticker: string;
+    timestamp: number;
 }
 
 interface StrikeDetail {
-	volume: number;
-	open_interest: number;
+    volume: number;
+    open_interest: number;
 }
 
 interface Strike {
-	call: StrikeDetail;
-	put: StrikeDetail;
+    call: StrikeDetail;
+    put: StrikeDetail;
 }
 
 interface Strikes {
-	[key: string]: Strike;
+    [key: string]: Strike;
 }
 
 const Card = ({ ticker, timestamp }: Props) => {
-	const [error, setError] = useState(null);
-	const [isLoaded, setIsLoaded] = useState(false);
-	const [items, setItems] = useState({});
-	const [strikes, setStrikes] = useState<Strikes>({});
-	const [price, setPrice] = useState(0);
+    const cryptoChainsUrl = import.meta.env.VITE_CRYPTO_CHAINS_API_URL;
 
-	const toPrettyDate = (value: number) => {
-		const myDatetimeString = moment(new Date(value * 1000));
-		return myDatetimeString.tz("America/New_York").format("llll");
-	};
+    const [error, setError] = useState(null);
+    const [isLoaded, setIsLoaded] = useState(false);
+    // const [items, setItems] = useState({});
+    const [strikes, setStrikes] = useState<Strikes>({});
+    const [price, setPrice] = useState(0);
 
-	useEffect(() => {
-		fetch(
-			`http://127.0.0.1:8000/option_chains?expr=2024-03-08&ticker=${ticker}&timestamp=${timestamp}`
-		)
-			.then((res) => res.json())
-			.then(
-				(result) => {
-					// console.log(result);
-					// console.log(result.data);
+    const toPrettyDate = (value: number) => {
+        const myDatetimeString = moment(new Date(value * 1000));
+        return myDatetimeString.tz("America/New_York").format("llll");
+    };
 
-					setItems((items) => ({
-						...items,
-						...result.data,
-					}));
+    useEffect(() => {
+        fetch(
+            `${cryptoChainsUrl}/option_chains?expr=2024-03-22&ticker=${ticker}&timestamp=${timestamp}`
+        )
+            .then((res) => res.json())
+            .then(
+                (result) => {
+                    // console.log(result);
+                    // console.log(result.data);
 
-					const timestamps = Object.keys(result.data);
-					const inner = result.data[timestamps[0]];
+                    // setItems((items) => ({
+                    // 	...items,
+                    // 	...result.data,
+                    // }));
 
-					setStrikes((strikes) => ({
-						...strikes,
-						...inner["strikes"],
-					}));
+                    const timestamps = Object.keys(result.data);
+                    const inner = result.data[timestamps[0]];
 
-					setPrice(inner.price);
+                    setStrikes((strikes) => ({
+                        ...(strikes || {}),
+                        ...((inner && inner["strikes"]) || {}),
+                    }));
 
-					setIsLoaded(true);
-				},
-				(error) => {
-					setIsLoaded(true);
-					setError(error.message);
-				}
-			);
-	}, [timestamp]);
+                    setPrice(inner ? inner.price : 0);
 
-	const cardBody =
-		Object.keys(strikes).length &&
-		Object.keys(strikes)
-			.reverse()
-			.map((key) => (
-				<div key={key} className="card-body-content">
-					<div className="card-body-row">{key}</div>
-					<div className="card-body-row">{strikes[key].call.volume}</div>
-					<div className="card-body-row">{strikes[key].call.open_interest}</div>
-					<div className="card-body-row">{strikes[key].put.volume}</div>
-					<div className="card-body-row">{strikes[key].put.open_interest}</div>
-				</div>
-			));
+                    setIsLoaded(true);
+                },
+                (error) => {
+                    setIsLoaded(true);
+                    setError(error.message);
+                }
+            );
+    }, [timestamp]);
 
-	if (error) {
-		return (
-			<div className="card-root">
-				<div>Error: {error}</div>
-			</div>
-		);
-	} else if (!isLoaded || !price) {
-		return (
-			<div className="card-root">
-				<div>Loading...</div>
-			</div>
-		);
-	} else {
-		return (
-			<div className="card-root">
-				<div className="card-header">
-					<span className="card-header-ticker">{ticker}</span>
-					<span className="card-header-date">{toPrettyDate(timestamp)}</span>
-					<span className="card-header-price">${price}</span>
-				</div>
-				<div className="card-body">
-					<div className="card-body-header">
-						<div className="card-body-header-member">Strike</div>
-						<div className="card-body-header-member">Call Volume</div>
-						<div className="card-body-header-member">Call OI</div>
-						<div className="card-body-header-member">Put Volume</div>
-						<div className="card-body-header-member">Put OI</div>
-					</div>
-					{cardBody}
-				</div>
-			</div>
-		);
-	}
+    // console.log("Strike,Call Volume, Call OI, Put Volume, Put OI");
+    const cardBody =
+        Object.keys(strikes).length &&
+        Object.keys(strikes)
+            .reverse()
+            .map((key) => (
+                <>
+                    {/* {console.log(
+                        `${key},${strikes[key].call.volume},${strikes[key].call.open_interest},${strikes[key].put.volume},${strikes[key].put.open_interest} `
+                    )} */}
+                    <div key={key} className="card-body-content">
+                        <div className="card-body-row">{key}</div>
+                        <div className="card-body-row">
+                            {strikes[key].call.volume}
+                        </div>
+                        <div className="card-body-row">
+                            {strikes[key].call.open_interest}
+                        </div>
+                        <div className="card-body-row">
+                            {strikes[key].put.volume}
+                        </div>
+                        <div className="card-body-row">
+                            {strikes[key].put.open_interest}
+                        </div>
+                    </div>
+                </>
+            ));
+
+    if (error) {
+        return (
+            <div className="card-root">
+                <div>Error: {error}</div>
+            </div>
+        );
+    } else if (!isLoaded || !price) {
+        return (
+            <div className="card-root">
+                <div>Loading...</div>
+            </div>
+        );
+    } else {
+        return (
+            <div className="card-root">
+                <div className="card-header">
+                    <span className="card-header-ticker">{ticker}</span>
+                    <span className="card-header-date">
+                        {toPrettyDate(timestamp)}
+                    </span>
+                    <span className="card-header-price">${price}</span>
+                </div>
+                <div className="card-body">
+                    <div className="card-body-header">
+                        <div className="card-body-header-member">Strike</div>
+                        <div className="card-body-header-member">
+                            Call Volume
+                        </div>
+                        <div className="card-body-header-member">Call OI</div>
+                        <div className="card-body-header-member">
+                            Put Volume
+                        </div>
+                        <div className="card-body-header-member">Put OI</div>
+                    </div>
+                    {cardBody}
+                </div>
+            </div>
+        );
+    }
 };
 
 export default Card;

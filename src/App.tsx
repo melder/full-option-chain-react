@@ -1,107 +1,109 @@
 import { useState, useEffect } from "react";
 import moment from "moment-timezone";
-
 import "./App.css";
-
 import "rc-slider/assets/index.css";
-
 import Card from "./components/Card";
 import TooltipSlider from "./components/TooltipSlider";
 
 function App() {
-	const [error, setError] = useState(null);
-	const [isLoaded, setIsLoaded] = useState(false);
-	const [timestamps, setTimestamps] = useState([]);
-	const [normalizedTimestamps, setNormalizedTimestamps] = useState<
-		Map<number, number>
-	>(new Map());
-	const [timestampMin, setTimestampMin] = useState(-1);
-	const [timestampMax, setTimestampMax] = useState(-1);
-	const [timestampLeft, setTimestampLeft] = useState(0);
-	const [timestampRight, setTimestampRight] = useState(0);
+    const cryptoChainsUrl = import.meta.env.VITE_CRYPTO_CHAINS_API_URL;
 
-	// Timestamp normalization for contiguous slider
-	const mapTimestamps = (arr: number[]) => {
-		const timestampToIndexMap = new Map();
-		arr.forEach((timestamp: number, index: number) => {
-			timestampToIndexMap.set(timestamp, index);
-		});
-		return timestampToIndexMap;
-	};
+    const [error, setError] = useState(null);
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [tickers, setTickers] = useState([]);
+    const [timestamps, setTimestamps] = useState([]);
+    const [timestampMin, setTimestampMin] = useState(0);
+    const [timestampMax, setTimestampMax] = useState(0);
+    const [timestampLeft, setTimestampLeft] = useState(0);
+    const [timestampRight, setTimestampRight] = useState(0);
 
-	const onSliderChange = (value: number[]) => {
-		// console.log("Slider value: " + value);
-		setTimestampLeft(value[0]);
-		setTimestampRight(value[1]);
-	};
+    const onSliderChange = (value: number | number[]) => {
+        const [left, right] = Array.isArray(value) ? value : [value, value];
+        setTimestampLeft(left);
+        setTimestampRight(right);
+    };
 
-	const handleTipFormatter = (value: number) => {
-		const myDatetimeString = moment(new Date(timestamps[value] * 1000));
-		return myDatetimeString.tz("America/New_York").format("llll");
-	};
+    const handleTipFormatter = (value: number) =>
+        moment(new Date(timestamps[value] * 1000))
+            .tz("America/New_York")
+            .format("llll");
 
-	useEffect(() => {
-		fetch("http://127.0.0.1:8000/timestamps?expr=2024-03-08")
-			.then((res) => res.json())
-			.then(
-				(result) => {
-					// console.log(result.data);
+    useEffect(() => {
+        setIsLoaded(false);
+        fetch(`${cryptoChainsUrl}/tickers`)
+            .then((res) => res.json())
+            .then(
+                (result) => {
+                    setTickers(result.data);
+                },
+                (error) => {
+                    console.log("Error retrieving tickers " + error);
+                }
+            );
+    }, []);
 
-					setTimestamps(result.data);
-					setNormalizedTimestamps(mapTimestamps(result.data));
+    useEffect(() => {
+        setIsLoaded(false);
+        fetch(`${cryptoChainsUrl}/timestamps?expr=2024-03-22`)
+            .then((res) => res.json())
+            .then(
+                (result) => {
+                    setTimestamps(result.data);
+                    setTimestampMin(0);
+                    setTimestampMax(result.data.length - 1);
+                    setTimestampLeft(0);
+                    setTimestampRight(result.data.length - 1);
+                    setIsLoaded(true);
+                },
+                (error) => {
+                    setError(error.message);
+                    setIsLoaded(true);
+                }
+            );
+    }, []);
 
-					setTimestampMin(0);
-					setTimestampMax(result.data.length - 1);
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
 
-					setTimestampLeft(0);
-					setTimestampRight(result.data.length - 1);
+    if (
+        !isLoaded ||
+        tickers.length == 0 ||
+        timestampMin < 0 ||
+        timestampMax < 0
+    ) {
+        return <div>Loading...</div>;
+    }
 
-					setIsLoaded(true);
-				},
-				(error) => {
-					setIsLoaded(true);
-					setError(error.message);
-				}
-			);
-	}, []);
-
-	if (error) {
-		return (
-			<div>
-				<div>Error: {error}</div>
-			</div>
-		);
-	} else if (!isLoaded || timestampMin < 0 || timestampMax < 0) {
-		return (
-			<div>
-				<div>Loading...</div>
-			</div>
-		);
-	} else {
-		return (
-			<>
-				<header>
-					<TooltipSlider
-						range
-						min={timestampMin}
-						max={timestampMax}
-						defaultValue={[timestampLeft, timestampRight]}
-						allowCross={false}
-						onChangeComplete={onSliderChange}
-						tipFormatter={handleTipFormatter}
-					/>
-				</header>
-				<Card ticker="BITO" timestamp={timestamps[timestampLeft]} />
-				<Card ticker="BITO" timestamp={timestamps[timestampRight]} />
-				<Card ticker="HOOD" timestamp={timestamps[timestampLeft]} />
-				<Card ticker="HOOD" timestamp={timestamps[timestampRight]} />
-				<Card ticker="COIN" timestamp={timestamps[timestampLeft]} />
-				<Card ticker="COIN" timestamp={timestamps[timestampRight]} />
-				<Card ticker="MSTR" timestamp={timestamps[timestampLeft]} />
-				<Card ticker="MSTR" timestamp={timestamps[timestampRight]} />
-			</>
-		);
-	}
+    return (
+        <>
+            <header>
+                <TooltipSlider
+                    range
+                    min={timestampMin}
+                    max={timestampMax}
+                    defaultValue={[timestampLeft, timestampRight]}
+                    allowCross={false}
+                    onChangeComplete={onSliderChange}
+                    tipFormatter={handleTipFormatter}
+                />
+            </header>
+            {tickers.map((ticker) => (
+                <>
+                    <Card
+                        key={`${ticker}-left`}
+                        ticker={ticker}
+                        timestamp={timestamps[timestampLeft]}
+                    />
+                    <Card
+                        key={`${ticker}-right`}
+                        ticker={ticker}
+                        timestamp={timestamps[timestampRight]}
+                    />
+                </>
+            ))}
+        </>
+    );
 }
 
 export default App;
