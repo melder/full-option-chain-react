@@ -62,6 +62,20 @@ function App() {
             );
     }, []);
 
+    // const marks = {
+    //     "-10": "-10°C",
+    //     0: <strong>0°C</strong>,
+    //     26: "26°C",
+    //     37: "37°C",
+    //     50: "50°C",
+    //     100: {
+    //         style: {
+    //             color: "red",
+    //         },
+    //         label: <strong>100°C</strong>,
+    //     },
+    // };
+
     if (error) {
         return <div>Error: {error}</div>;
     }
@@ -78,30 +92,42 @@ function App() {
     return (
         <>
             <header>
-                <TooltipSlider
-                    range
-                    min={timestampMin}
-                    max={timestampMax}
-                    defaultValue={[timestampLeft, timestampRight]}
-                    allowCross={false}
-                    onChangeComplete={onSliderChange}
-                    tipFormatter={handleTipFormatter}
-                />
+                {/* <div className="expr-slider-container">
+                    <TooltipSlider
+                        min={-10}
+                        marks={marks}
+                        included={false}
+                        defaultValue={20}
+                    />
+                </div> */}
+                <div className="date-slider-container">
+                    <TooltipSlider
+                        range
+                        min={timestampMin}
+                        max={timestampMax}
+                        defaultValue={[timestampLeft, timestampRight]}
+                        allowCross={false}
+                        onChangeComplete={onSliderChange}
+                        tipFormatter={handleTipFormatter}
+                    />
+                </div>
             </header>
-            {tickers.map((ticker) => (
-                <>
-                    <Card
-                        key={`${ticker}-left`}
-                        ticker={ticker}
-                        timestamp={timestamps[timestampLeft]}
-                    />
-                    <Card
-                        key={`${ticker}-right`}
-                        ticker={ticker}
-                        timestamp={timestamps[timestampRight]}
-                    />
-                </>
-            ))}
+            <div className="cards-container">
+                {tickers.map((ticker) => (
+                    <>
+                        <Card
+                            key={`${ticker}-left`}
+                            ticker={ticker}
+                            timestamp={timestamps[timestampLeft]}
+                        />
+                        <Card
+                            key={`${ticker}-right`}
+                            ticker={ticker}
+                            timestamp={timestamps[timestampRight]}
+                        />
+                    </>
+                ))}
+            </div>
         </>
     );
 }

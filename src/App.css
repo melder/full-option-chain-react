@@ -1,6 +1,27 @@
 header {
+    position: fixed;
+    width: 100%;
+    background-color: white;
+}
+
+.cards-container {
+    padding-top: 60px;
+}
+
+.date-slider-container, .expr-slider-container {
+    display: inline-block;
     border: 2px solid hsla(0, 0%, 30%, 0.20);
     border-radius: 12px;
-    padding: 12px;
-    margin: 0 36px;
+    padding: 16px;
+    width: 95%;
+    margin: 0;
 }
+
+/* .date-slider-container {
+    width: 75%;
+    float: right;
+}
+
+.expr-slider-container {
+    width: 15%;
+} */
