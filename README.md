@@ -2,7 +2,7 @@
 
 Frontend for https://github.com/melder/full_option_chain_scraper
 
-# Deployment (ubuntu)
+## #Deployment (ubuntu)
 
 1. Acquire latest nodejs
 
@@ -70,9 +70,9 @@ server {
         proxy_pass http://unix:/home/user/full_option_chain_scraper/chains_api.sock:/;
     }
 
+    root /home/user/full_option_chain_react/dist;
     location /chains/ {
-        include proxy_params;
-        proxy_pass http://unix:/home/user/full_option_chain_react/chains.sock:/;
+        try_files $uri /index.html;
     }
 }
 ```
