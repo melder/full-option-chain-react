@@ -2,7 +2,7 @@
 
 Frontend for https://github.com/melder/full_option_chain_scraper
 
-## #Deployment (ubuntu)
+## Deployment (ubuntu)
 
 1. Acquire latest nodejs
 
