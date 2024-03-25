@@ -1,27 +1,55 @@
 header {
+    display: flex;
     position: fixed;
-    width: 100%;
-    background-color: white;
+    top: 0;
+    left: 0;
+    width: 90%;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
 }
 
 .cards-container {
-    padding-top: 60px;
+    padding-top: 64px;
+}
+
+.cards-container.loading {
+    padding-left: 20px;
+    margin-top: 16px;
 }
 
 .date-slider-container, .expr-slider-container {
-    display: inline-block;
     border: 2px solid hsla(0, 0%, 30%, 0.20);
+    background-color: white;
     border-radius: 12px;
     padding: 16px;
-    width: 95%;
-    margin: 0;
+    box-sizing: border-box;
+    margin: 4px;
 }
 
-/* .date-slider-container {
-    width: 75%;
-    float: right;
+.date-slider-container {
+    flex: 1 0 78%;
+    padding: 16px 36px;
+    line-height: 14px;
 }
 
 .expr-slider-container {
-    width: 15%;
-} */
+    flex: 1 0 22%;
+    margin-right: 12px;
+    padding: 16px 36px;
+    line-height: 14px;
+}
+
+.expr-slider-container .rc-slider-handle {
+    background-color: #96dbfa;
+}
+
+.expr-slider-container .rc-slider-handle-dragging.rc-slider-handle-dragging.rc-slider-handle-dragging {
+    box-shadow: 0 0 0 2px #57c5f7;
+}
+
+.rc-slider-mark-text {
+    text-wrap: nowrap;
+    margin-top: -3px;
+}

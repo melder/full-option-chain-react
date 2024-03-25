@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import moment from "moment-timezone";
 
 interface Props {
+    expr: string;
     ticker: string;
     timestamp: number;
 }
@@ -21,7 +22,7 @@ interface Strikes {
     [key: string]: Strike;
 }
 
-const Card = ({ ticker, timestamp }: Props) => {
+const Card = ({ expr, ticker, timestamp }: Props) => {
     const cryptoChainsUrl = import.meta.env.VITE_CRYPTO_CHAINS_API_URL;
     const [error, setError] = useState<string | null>(null);
     const [isLoaded, setIsLoaded] = useState(false);
@@ -35,7 +36,7 @@ const Card = ({ ticker, timestamp }: Props) => {
 
     useEffect(() => {
         fetch(
-            `${cryptoChainsUrl}/option_chains?expr=2024-03-22&ticker=${ticker}&timestamp=${timestamp}`
+            `${cryptoChainsUrl}/option_chains?expr=${expr}&ticker=${ticker}&timestamp=${timestamp}`
         )
             .then((res) => res.json())
             .then((result) => {
@@ -50,7 +51,7 @@ const Card = ({ ticker, timestamp }: Props) => {
                 setIsLoaded(true);
                 setError(error.message);
             });
-    }, [cryptoChainsUrl, ticker, timestamp]);
+    }, [cryptoChainsUrl, expr, ticker, timestamp]);
 
     if (error) {
         return <div className="card-root">Error: {error}</div>;
